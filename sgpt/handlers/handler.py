@@ -2,7 +2,7 @@ from typing import Any, Dict, Generator, List
 
 import typer
 
-from ..client import OpenAIClient
+from ..clients.openai import OpenAIClient
 from ..config import cfg
 from ..role import SystemRole
 
