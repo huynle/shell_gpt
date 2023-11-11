@@ -45,16 +45,16 @@ class ChatSession:
             if not chat_id:
                 yield from func(*args, **kwargs)
                 return
-            old_messages = self._read(chat_id)
-            for message in messages:
-                old_messages.append(message)
-            kwargs["messages"] = old_messages
+            context = self._read(chat_id)
+            # for message in messages:
+            #     old_messages.append(message)
+            kwargs["context"] = context
             response_text = ""
             for word in func(*args, **kwargs):
                 response_text += word
                 yield word
-            old_messages.append({"role": "assistant", "content": response_text})
-            self._write(kwargs["messages"], chat_id)
+            # old_messages.append({"role": "assistant", "content": response_text})
+            self._write(kwargs["context"], chat_id)
 
         return wrapper
 
@@ -165,6 +165,15 @@ class ChatHandler(Handler):
         return self.role.make_prompt(prompt, not self.initiated)
 
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
+        messages = []
+        if not self.initiated and cfg.get("SYSTEM_ROLES") == "true":
+            messages.append({"role": "system", "content": self.role.role})
+        messages.append({"role": "user", "content": prompt})
+        return messages
+        # return prompt
+        #
+
+    def make_messages_og(self, prompt: str) -> List[Dict[str, str]]:
         messages = []
         if not self.initiated and cfg.get("SYSTEM_ROLES") == "true":
             messages.append({"role": "system", "content": self.role.role})
