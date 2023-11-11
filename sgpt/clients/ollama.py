@@ -39,8 +39,9 @@ class OllamaClient:
         :return: Response body JSON.
         """
         stream = DISABLE_STREAMING == "false"
+        full_convo = "\n".join([msg["content"] for msg in messages])
         data = {
-            "prompt": messages,
+            "prompt": full_convo,
             "model": model,
             # "temperature": temperature,
             # "top_p": top_probability,
