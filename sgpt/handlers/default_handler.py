@@ -19,9 +19,9 @@ class DefaultHandler(Handler):
         return self.role.make_prompt(prompt, initial=True)
 
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
-        # messages = []
-        # if cfg.get("SYSTEM_ROLES") == "true":
-        #     messages.append({"role": "system", "content": self.role.role})
-        # messages.append({"role": "user", "content": prompt})
-        # return messages
-        return prompt
+        messages = []
+        if cfg.get("SYSTEM_ROLES") == "true":
+            messages.append({"role": "system", "content": self.role.role})
+        messages.append({"role": "user", "content": prompt})
+        return messages
+        # return prompt

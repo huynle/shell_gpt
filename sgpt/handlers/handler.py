@@ -31,8 +31,13 @@ class Handler:
         stream = cfg.get("DISABLE_STREAMING") == "false"
         if not stream:
             typer.echo("Loading...\r", nl=False)
-        for word in self.get_completion(messages=messages, **kwargs):
-            typer.secho(word, fg=self.color, bold=True, nl=False)
+        if self.color != "none":
+            for word in self.get_completion(messages=messages, **kwargs):
+                typer.secho(word, fg=self.color, bold=True, nl=False)
             full_completion += word
-        typer.echo("\033[K" if not stream else "")  # Overwrite "loading..."
+            typer.echo("\033[K" if not stream else "")  # Overwrite "loading..."
+        else:
+            for word in self.get_completion(messages=messages, **kwargs):
+                typer.echo(word, nl=False)  # Overwrite "loading..."
+                full_completion += word
         return full_completion

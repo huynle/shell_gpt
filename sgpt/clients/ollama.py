@@ -46,6 +46,7 @@ class OllamaClient:
             # "temperature": temperature,
             # "top_p": top_probability,
             "stream": stream,
+            "raw": True,
         }
         endpoint = f"{self.api_host}/generate"
         response = requests.post(
