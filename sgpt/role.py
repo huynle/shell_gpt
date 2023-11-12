@@ -36,6 +36,7 @@ Provide only plain text without Markdown formatting.
 Do not show any warnings or information regarding your capabilities.
 If you need to store any data, assume it will be stored in the chat."""
 
+EMPTY_ROLE = ""
 
 PROMPT_TEMPLATE = """###
 Role name: {name}
@@ -74,6 +75,7 @@ class SystemRole:
             SystemRole("shell", SHELL_ROLE, "Command", variables),
             SystemRole("describe_shell", DESCRIBE_SHELL_ROLE, "Description", variables),
             SystemRole("code", CODE_ROLE, "Code"),
+            SystemRole("empty", EMPTY_ROLE, "Answer"),
         ):
             if not default_role.exists:
                 default_role.save()
@@ -169,7 +171,7 @@ class SystemRole:
         self.file_path.unlink()
 
     def make_prompt(self, request: str, initial: bool) -> str:
-        if initial:
+        if initial and self.role:
             prompt = PROMPT_TEMPLATE.format(
                 name=self.name,
                 role=self.role,

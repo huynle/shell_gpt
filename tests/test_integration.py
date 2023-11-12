@@ -353,7 +353,7 @@ class TestShellGpt(TestCase):
         # assert "command not found" not in result.stdout
         # assert "hello world" in stdout.split("\n")[-1]
 
-    @patch("sgpt.client.OpenAIClient.get_completion")
+    @patch("sgpt.client.openai.OpenAIClient.get_completion")
     def test_model_option(self, mocked_get_completion):
         dict_arguments = {
             "prompt": "What is the capital of the Czech Republic?",

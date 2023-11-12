@@ -4,8 +4,8 @@ from typing import Dict, Generator, List
 
 import requests
 
-from .cache import Cache
-from .config import cfg
+from ..cache import Cache
+from ..config import cfg
 
 CACHE_LENGTH = int(cfg.get("CACHE_LENGTH"))
 CACHE_PATH = Path(cfg.get("CACHE_PATH"))
@@ -13,7 +13,7 @@ REQUEST_TIMEOUT = int(cfg.get("REQUEST_TIMEOUT"))
 DISABLE_STREAMING = str(cfg.get("DISABLE_STREAMING"))
 
 
-class OpenAIClient:
+class OllamaClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
 
     def __init__(self, api_host: str, api_key: str) -> None:
@@ -24,7 +24,7 @@ class OpenAIClient:
     def _request(
         self,
         messages: List[Dict[str, str]],
-        model: str = "gpt-3.5-turbo",
+        model: str = "llama2",
         temperature: float = 1,
         top_probability: float = 1,
     ) -> Generator[str, None, None]:
@@ -39,14 +39,16 @@ class OpenAIClient:
         :return: Response body JSON.
         """
         stream = DISABLE_STREAMING == "false"
+        full_convo = "\n".join([msg["content"] for msg in messages])
         data = {
-            "messages": messages,
+            "prompt": full_convo,
             "model": model,
-            "temperature": temperature,
-            "top_p": top_probability,
+            # "temperature": temperature,
+            # "top_p": top_probability,
             "stream": stream,
+            "raw": True,
         }
-        endpoint = f"{self.api_host}/v1/chat/completions"
+        endpoint = f"{self.api_host}/generate"
         response = requests.post(
             endpoint,
             # Hide API key from Rich traceback.
@@ -67,20 +69,20 @@ class OpenAIClient:
             return
         for line in response.iter_lines():
             data = line.lstrip(b"data: ").decode("utf-8")
-            if data == "[DONE]":  # type: ignore
-                break
             if not data:
                 continue
             data = json.loads(data)  # type: ignore
-            delta = data["choices"][0]["delta"]  # type: ignore
-            if "content" not in delta:
-                continue
-            yield delta["content"]
+            if data["done"] == True:  # type: ignore
+                break
+            delta = data["response"]
+            # if "content" not in delta:
+            #     continue
+            yield delta
 
     def get_completion(
         self,
         messages: List[Dict[str, str]],
-        model: str = "gpt-3.5-turbo",
+        model: str = "llama2",
         temperature: float = 1,
         top_probability: float = 1,
         caching: bool = True,

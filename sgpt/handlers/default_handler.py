@@ -24,3 +24,4 @@ class DefaultHandler(Handler):
             messages.append({"role": "system", "content": self.role.role})
         messages.append({"role": "user", "content": prompt})
         return messages
+        # return prompt

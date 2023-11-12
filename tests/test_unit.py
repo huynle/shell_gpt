@@ -4,7 +4,7 @@ import unittest
 import requests
 import requests_mock
 
-from sgpt.client import OpenAIClient
+from sgpt.clients.openai import OpenAIClient
 
 
 class TestMain(unittest.TestCase):
