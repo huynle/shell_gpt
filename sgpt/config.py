@@ -32,6 +32,13 @@ DEFAULT_CONFIG = {
 }
 
 
+def envsub(content ):
+    for env_var in os.environ:
+        expansion = f"${{{env_var}}}"
+        # Expand environment variables in the data string
+        content = content.replace(expansion, os.environ[env_var])
+    return content
+
 class Config(dict):  # type: ignore
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
@@ -58,6 +65,7 @@ class Config(dict):  # type: ignore
     def _exists(self) -> bool:
         return self.config_path.exists()
 
+
     def _write(self) -> None:
         with open(self.config_path, "w", encoding="utf-8") as file:
             string_config = ""
@@ -70,7 +78,7 @@ class Config(dict):  # type: ignore
             for line in file:
                 if not line.startswith("#"):
                     key, value = line.strip().split("=")
-                    self[key] = value
+                    self[key] = envsub(value)
 
     def get(self, key: str) -> str:  # type: ignore
         # Prioritize environment variables over config file.
@@ -78,6 +86,5 @@ class Config(dict):  # type: ignore
         if not value:
             raise UsageError(f"Missing config key: {key}")
         return value
-
 
 cfg = Config(SHELL_GPT_CONFIG_PATH, **DEFAULT_CONFIG)
